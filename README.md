@@ -1,4 +1,4 @@
-# Mustang Settlements
+# Mustang
 
 This repository hosts an interactive website for documenting settlements in Mustang District, Gandaki Province, Nepal.
 
