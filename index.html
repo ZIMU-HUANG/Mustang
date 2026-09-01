@@ -1,0 +1,2182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mustang</title>
+<meta name="description" content="An interactive catalogue of 85 settlements in Mustang District, Nepal, with satellite and locator imagery.">
+<meta name="theme-color" content="#fafafa">
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --border: #e5e5e5;
+    --border-strong: #d0d0d0;
+    --text: #1a1a1a;
+    --text-muted: #666;
+    --text-faint: #999;
+    --accent: #1a1a1a;
+    --hover: #f0f0f0;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    margin: 0; padding: 0 20px 32px; background: var(--bg); color: var(--text);
+    line-height: 1.5;
+    font-size: 14px;
+  }
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    margin: 0 -20px 30px;
+    background: rgba(250,250,250,0.92);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+  }
+  .topbar-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .brand {
+    color: var(--text);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 750;
+    letter-spacing: 0.16em;
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 7px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav a:hover {
+    background: var(--hover);
+    color: var(--text);
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  .section {
+    scroll-margin-top: 82px;
+    margin-bottom: 42px;
+  }
+  .section-head {
+    max-width: 760px;
+    margin-bottom: 18px;
+  }
+  #image-data .section-head {
+    max-width: none;
+  }
+  .kicker {
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 11px;
+    font-weight: 700;
+    margin: 0 0 8px;
+  }
+  .section-copy {
+    color: var(--text-muted);
+    margin: 0;
+    font-size: 13px;
+  }
+  .section-copy,
+  .intro-panel p,
+  .map-note,
+  .source-card p,
+  .source-note p,
+  .settlement-group span,
+  .gallery-status span {
+    text-align: justify;
+    text-align-last: left;
+    hyphens: auto;
+  }
+
+  h1 {
+    font-size: 22px; font-weight: 600;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  .subtitle { color: var(--text-muted); margin-bottom: 28px; font-size: 13px; }
+
+  .background-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+    gap: 18px;
+    align-items: stretch;
+  }
+  .intro-panel, .map-panel, .data-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+  }
+  .intro-panel p {
+    margin: 0 0 12px;
+    color: var(--text-muted);
+  }
+  .intro-panel p:last-child { margin-bottom: 0; }
+  .fact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .fact {
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+  .fact strong {
+    display: block;
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.32;
+  }
+  .fact span {
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .map-panel {
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .map-frame {
+    position: relative;
+    flex: 1;
+    min-height: 260px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background:
+      linear-gradient(135deg, rgba(0,0,0,0.04), rgba(0,0,0,0.01)),
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(0,0,0,0.045) 28px),
+      repeating-linear-gradient(90deg, transparent, transparent 27px, rgba(0,0,0,0.045) 28px);
+  }
+  .map-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .map-placeholder {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+  }
+  .map-placeholder strong {
+    display: block;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .map-note {
+    color: var(--text-muted);
+    font-size: 12px;
+    margin: 0;
+  }
+  .stats {
+    display: flex; gap: 32px; flex-wrap: wrap;
+    padding: 20px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 16px;
+  }
+  .stat .label {
+    font-size: 11px; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+  .stat .value {
+    font-size: 22px; font-weight: 600; margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .controls {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+
+  .data-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .source-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+  }
+  .source-card h3 {
+    margin: 0 0 6px;
+    font-size: 15px;
+  }
+  .source-card p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 12.5px;
+  }
+  #image-data .section-copy,
+  #image-data .source-card p {
+    text-align-last: left;
+  }
+  .data-panel {
+    padding: 16px 20px;
+  }
+  .data-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .data-toolbar button {
+    padding: 6px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+  }
+  .data-toolbar button.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .data-empty {
+    min-height: 180px;
+    border: 1px dashed var(--border-strong);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+  }
+  .data-empty strong {
+    display: block;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .gallery-tools {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 0 0 14px;
+  }
+  .gallery-search {
+    min-width: 220px;
+    flex: 1;
+    padding: 7px 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    font-size: 13px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+  }
+  .gallery-search:focus { outline: none; border-color: var(--accent); }
+  .gallery-status {
+    border: 1px dashed var(--border-strong);
+    border-radius: 6px;
+    padding: 18px;
+    color: var(--text-muted);
+    background: #fbfbfb;
+    margin-top: 10px;
+  }
+  .gallery-status strong {
+    display: block;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .gallery-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  }
+  .gallery-card:hover {
+    border-color: var(--border-strong);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.07);
+    transform: translateY(-1px);
+  }
+  .gallery-card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .gallery-card-head {
+    padding: 12px 12px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .gallery-card-title {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .gallery-card-title h3 {
+    margin: 0;
+    font-size: 14px;
+  }
+  .source-pill {
+    flex: 0 0 auto;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    padding: 2px 7px;
+    color: var(--text-muted);
+    font-size: 10.5px;
+    font-weight: 650;
+    white-space: nowrap;
+  }
+  .gallery-meta {
+    color: var(--text-muted);
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .thumb-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: transparent;
+  }
+  .gallery-thumb {
+    appearance: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    height: 94px;
+    background: #eee;
+    cursor: zoom-in;
+    overflow: hidden;
+  }
+  .gallery-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.2s ease;
+  }
+  .gallery-thumb:hover img { transform: scale(1.04); }
+  .thumb-more {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 94px;
+    color: var(--text);
+    background-color: #f7f7f7;
+    background-position: center;
+    background-size: cover;
+    font-size: 12px;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    overflow: hidden;
+  }
+  .thumb-more::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.58);
+  }
+  .thumb-more span {
+    position: relative;
+    z-index: 1;
+  }
+  .source-panels {
+    margin-top: 14px;
+  }
+  .source-panel {
+    display: none;
+  }
+  .source-panel.active {
+    display: block;
+  }
+  .source-layout {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.32fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+  .source-note {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    background: #fbfbfb;
+  }
+  .source-note h3 {
+    margin: 0 0 6px;
+    font-size: 15px;
+  }
+  .source-note p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 12.5px;
+  }
+  .settlement-groups {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .settlement-group {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    background: var(--surface);
+  }
+  .settlement-group strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .settlement-group span {
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .all-sources-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .source-column {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    padding: 14px;
+  }
+  .source-column h3 {
+    margin: 0 0 10px;
+    font-size: 15px;
+  }
+  .source-column ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    color: var(--text-muted);
+    font-size: 12.5px;
+  }
+  .source-column li {
+    padding: 6px 0;
+    border-top: 1px solid var(--border);
+  }
+  .source-column li:first-child { border-top: none; }
+  .control-row { margin-bottom: 14px; }
+  .control-row:last-child { margin-bottom: 0; }
+  .control-row .label {
+    font-size: 11px; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    font-weight: 500;
+    display: block; margin-bottom: 8px;
+  }
+
+  #search {
+    width: 100%; padding: 9px 12px;
+    border: 1px solid var(--border-strong); border-radius: 4px;
+    font-size: 14px; background: var(--surface); color: var(--text);
+    transition: border-color 0.15s;
+    font-family: inherit;
+  }
+  #search:focus { outline: none; border-color: var(--accent); }
+  #search::placeholder { color: var(--text-faint); }
+
+  .filter-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+  .filter-buttons button {
+    padding: 6px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    transition: all 0.12s;
+  }
+  .filter-buttons button:hover { background: var(--hover); }
+  .filter-buttons button.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  .filter-buttons .cnt {
+    font-size: 11px;
+    opacity: 0.65;
+    margin-left: 3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .filter-buttons button.active .cnt { opacity: 0.7; }
+
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    overflow-x: auto;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    background: #f5f5f5;
+    color: var(--text);
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    position: sticky; top: 0; z-index: 1;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border-strong);
+  }
+  thead th.sortable { cursor: pointer; user-select: none; }
+  thead th.sortable:hover { background: #ececec; }
+  thead th.sortable::after { content: ' ↕'; opacity: 0.3; font-size: 9px; }
+  thead th.sort-asc::after { content: ' ↑'; opacity: 0.9; }
+  thead th.sort-desc::after { content: ' ↓'; opacity: 0.9; }
+
+  tbody td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr { transition: background 0.12s; }
+  tbody tr:hover { background: #f7f7f7; }
+
+  td.num {
+    text-align: center; color: var(--text-faint);
+    font-variant-numeric: tabular-nums;
+    width: 50px;
+    font-size: 12px;
+  }
+  td.name { font-weight: 600; color: var(--text); }
+  td.vdc { color: var(--text); font-size: 12.5px; }
+  td.rm { color: var(--text-muted); font-size: 12.5px; }
+  td.coord {
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 11.5px;
+    white-space: nowrap;
+  }
+
+  /* Image columns */
+  th.img-col, td.img-col {
+    text-align: center;
+    width: 80px;
+    white-space: nowrap;
+  }
+  .img-btn {
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    padding: 4px 12px;
+    font-size: 11.5px;
+    font-weight: 500;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.12s;
+  }
+  .img-btn:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  /* Lightbox */
+  #lightbox {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    cursor: zoom-out;
+  }
+  #lightbox.open { display: flex; }
+  #lightbox .lb-inner {
+    position: relative;
+    max-width: 100%; max-height: 100%;
+    cursor: default;
+    display: flex; flex-direction: column;
+    align-items: center;
+  }
+  #lightbox img {
+    max-width: 100%;
+    max-height: calc(100vh - 160px);
+    object-fit: contain;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  #lightbox .lb-toggle {
+    display: flex;
+    gap: 0;
+    margin-bottom: 14px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    padding: 3px;
+  }
+  #lightbox .lb-toggle button {
+    background: transparent;
+    color: rgba(255,255,255,0.7);
+    border: none;
+    padding: 6px 18px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 3px;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  #lightbox .lb-toggle button:hover { color: #fff; }
+  #lightbox .lb-toggle button.active {
+    background: rgba(255,255,255,0.95);
+    color: #1a1a1a;
+  }
+  #lightbox .lb-caption {
+    margin-top: 14px;
+    color: #fff;
+    font-size: 13px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  #lightbox .lb-caption .lb-name {
+    font-size: 16px; font-weight: 600;
+    margin-right: 10px;
+  }
+  #lightbox .lb-caption .lb-meta { color: rgba(255,255,255,0.65); }
+  #lightbox .lb-close {
+    position: absolute; top: -36px; right: 0;
+    color: #fff;
+    background: transparent; border: none;
+    font-size: 24px; cursor: pointer;
+    padding: 4px 10px;
+    line-height: 1;
+  }
+  #lightbox .lb-close:hover { opacity: 0.7; }
+  #lightbox .lb-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  #lightbox .lb-nav:hover { background: rgba(255,255,255,0.25); }
+  #lightbox .lb-prev { left: -60px; }
+  #lightbox .lb-next { right: -60px; }
+  #lightbox .lb-error {
+    color: #fff;
+    background: rgba(255,255,255,0.05);
+    border: 1px dashed rgba(255,255,255,0.3);
+    padding: 60px 80px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 14px;
+  }
+  #lightbox .lb-error .fname {
+    display: block;
+    margin-top: 12px;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+  }
+  #fieldbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: rgba(0,0,0,0.88);
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    cursor: zoom-out;
+  }
+  #fieldbox.open { display: flex; }
+  .fieldbox-inner {
+    position: relative;
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: default;
+  }
+  .fieldbox-inner img {
+    max-width: 100%;
+    max-height: calc(100vh - 130px);
+    object-fit: contain;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  .fieldbox-close {
+    position: absolute;
+    top: -36px;
+    right: 0;
+    color: #fff;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 4px 10px;
+    line-height: 1;
+  }
+  .fieldbox-caption {
+    margin-top: 12px;
+    color: #fff;
+    text-align: center;
+    font-size: 13px;
+  }
+  .fieldbox-caption strong {
+    font-size: 15px;
+    margin-right: 8px;
+  }
+  .fieldbox-caption span { color: rgba(255,255,255,0.68); }
+  .fieldbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    cursor: pointer;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+  .fieldbox-nav:hover { background: rgba(255,255,255,0.25); }
+  .fieldbox-prev { left: -60px; }
+  .fieldbox-next { right: -60px; }
+  @media (max-width: 768px) {
+    #lightbox { padding: 20px; }
+    #lightbox .lb-prev { left: 4px; }
+    #lightbox .lb-next { right: 4px; }
+    #lightbox .lb-close { top: -32px; }
+    th.img-col, td.img-col { width: 60px; }
+    .img-btn { padding: 3px 8px; font-size: 11px; }
+    .fieldbox-prev { left: 4px; }
+    .fieldbox-next { right: 4px; }
+  }
+  td.coord a {
+    color: var(--text-muted);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--border-strong);
+  }
+  td.coord a:hover { color: var(--text); border-bottom-color: var(--text); }
+
+  /* Region badge */
+  th.region-col, td.region-col {
+    text-align: center;
+    width: 70px;
+    white-space: nowrap;
+  }
+  .region-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border: 1px solid;
+  }
+  .region-badge.upper {
+    color: #ffffff;
+    background: #4a4a4a;
+    border-color: #4a4a4a;
+  }
+  .region-badge.lower {
+    color: #555;
+    background: #ededed;
+    border-color: #d8d8d8;
+  }
+
+  tr.hidden { display: none; }
+
+  .empty {
+    text-align: center; padding: 60px 20px;
+    color: var(--text-faint);
+    font-size: 13px;
+  }
+
+  footer {
+    text-align: center; color: var(--text-faint); font-size: 11.5px;
+    margin-top: 24px; padding: 16px;
+  }
+
+  @media (max-width: 768px) {
+    body { padding: 0 12px 16px; }
+    .topbar { margin: 0 -12px 20px; }
+    .topbar-inner {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 10px;
+      padding: 12px;
+    }
+    .nav { justify-content: flex-start; }
+    .background-grid, .data-summary, .source-layout, .settlement-groups, .all-sources-grid, .gallery-grid { grid-template-columns: 1fr; }
+    .fact-grid { grid-template-columns: 1fr; }
+    .stats { gap: 20px; padding: 16px; }
+    .stat .value { font-size: 18px; }
+    table { font-size: 12px; }
+    thead th, tbody td { padding: 8px 8px; }
+    #fieldbox { padding: 20px; }
+    .fieldbox-close { top: -32px; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="https://zimu-huang.github.io/Mustang/">MUSTANG</a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="#background">Background</a>
+      <a href="#settlements">Settlements</a>
+      <a href="#image-data">Image Data</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+
+<section class="section" id="background">
+  <div class="section-head">
+    <p class="kicker">Study Area</p>
+    <h1>Background</h1>
+    <p class="subtitle">Mustang District · Gandaki Province · Nepal</p>
+    <p class="section-copy">An interactive settlement catalogue and multi-source visual record for documenting Mustang's high-altitude built environment.</p>
+  </div>
+
+  <div class="background-grid">
+    <div class="intro-panel">
+      <p>Mustang is a high-altitude Himalayan district in Gandaki Province, Nepal. Historically associated with the former Kingdom of Lo, it forms a Tibetan-Buddhist cultural landscape along the trans-Himalayan trade corridor.</p>
+      <p>Long restricted access, extreme terrain, sparse roads, and uneven street-view coverage have left many settlements under-recorded beyond a small number of well-known heritage sites.</p>
+      <p>This website organizes 85 surveyed settlements and links regional context, settlement locations, satellite/locator images, and ground-sensing image sources for scalable built-environment documentation.</p>
+      <div class="fact-grid">
+        <div class="fact">
+          <strong>85</strong>
+          <span>Settlements</span>
+        </div>
+        <div class="fact">
+          <strong>3,573 km²</strong>
+          <span>District Area</span>
+        </div>
+        <div class="fact">
+          <strong>83.47°E-84.30°E</strong>
+          <span>Longitude Range</span>
+        </div>
+        <div class="fact">
+          <strong>28.55°N-29.32°N</strong>
+          <span>Latitude Range</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="map-panel">
+      <div class="map-frame">
+        <img src="./images/overview-map.webp" alt="Overview map of Mustang settlements" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="map-placeholder">
+          <strong>Overview Map</strong>
+          <span>Upload the final general map as<br>images/overview-map.webp</span>
+        </div>
+      </div>
+      <p class="map-note">Overview of 85 surveyed settlements, with Upper and Lower Mustang divided at Kagbeni.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="settlements">
+  <div class="section-head">
+    <p class="kicker">Settlement Catalogue</p>
+    <h1>Settlements</h1>
+    <p class="section-copy">Search, filter, and inspect the 85 settlement records. Satellite and locator images open in the same viewer.</p>
+  </div>
+
+<div class="stats">
+  <div class="stat">
+    <div class="label">Rural Municipalities</div>
+    <div class="value">5</div>
+  </div>
+  <div class="stat">
+    <div class="label">Total</div>
+    <div class="value">85</div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="control-row">
+    <span class="label">Search</span>
+    <input type="text" id="search" placeholder="Search Name, Former VDC, Municipality..." autocomplete="off">
+  </div>
+  <div class="control-row">
+    <span class="label">Region (split at Kagbeni)</span>
+    <div class="filter-buttons">
+      <button class="region-filter active" data-region="">All <span class="cnt">85</span></button>
+      <button class="region-filter" data-region="Upper">Upper Mustang <span class="cnt">43</span></button>
+      <button class="region-filter" data-region="Lower">Lower Mustang <span class="cnt">42</span></button>
+    </div>
+  </div>
+  <div class="control-row">
+    <span class="label">Rural Municipality</span>
+    <div class="filter-buttons">
+      <button class="rm-filter active" data-rm="">All <span class="cnt">85</span></button>
+      <button class="rm-filter" data-rm="Thasang">Thasang <span class="cnt">19</span></button>
+      <button class="rm-filter" data-rm="Gharapjhong">Gharapjhong <span class="cnt">9</span></button>
+      <button class="rm-filter" data-rm="Varagung_Muktichhetra">Varagung Muktichhetra <span class="cnt">24</span></button>
+      <button class="rm-filter" data-rm="Lo_Ghekar_Damodarkunda">Lo-Ghekar Damodarkunda <span class="cnt">15</span></button>
+      <button class="rm-filter" data-rm="Lomanthang">Lomanthang <span class="cnt">18</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="table-wrap">
+<table id="tbl">
+<thead>
+  <tr>
+    <th class="sortable" data-col="0">#</th>
+    <th class="sortable" data-col="1">Name</th>
+    <th class="sortable" data-col="2">Former VDC</th>
+    <th class="sortable" data-col="3">Rural Municipality</th>
+    <th class="region-col sortable" data-col="4">Region</th>
+    <th class="img-col">Satellite</th>
+    <th class="img-col">Locator</th>
+    <th>Coordinates</th>
+  </tr>
+</thead>
+<tbody>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">1</td>
+  <td class="name">Arka</td>
+  <td class="vdc">Chhonhup</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/01_Arka.webp" data-name="Arka" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/01_Arka.webp" data-name="Arka" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.217607,83.977297" target="_blank" rel="noopener">29.217607, 83.977297</a></td>
+</tr>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">2</td>
+  <td class="name">Bharcha</td>
+  <td class="vdc">Chhoser</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/02_Bharcha.webp" data-name="Bharcha" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/02_Bharcha.webp" data-name="Bharcha" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.214822,83.981898" target="_blank" rel="noopener">29.214822, 83.981898</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Upper">
+  <td class="num">3</td>
+  <td class="name">Chele / Tsele</td>
+  <td class="vdc">Chhusang</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/03_Chele_Tsele.webp" data-name="Chele / Tsele" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/03_Chele_Tsele.webp" data-name="Chele / Tsele" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.931062,83.827001" target="_blank" rel="noopener">28.931062, 83.827001</a></td>
+</tr>
+<tr data-rm="Gharapjhong" data-region="Lower">
+  <td class="num">4</td>
+  <td class="name">Chhairo</td>
+  <td class="vdc">Jomsom</td>
+  <td class="rm">Gharapjhong</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/04_Chhairo.webp" data-name="Chhairo" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/04_Chhairo.webp" data-name="Chhairo" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.732805,83.679374" target="_blank" rel="noopener">28.732805, 83.679374</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">5</td>
+  <td class="name">Chhokhopani</td>
+  <td class="vdc">Tukuche</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/05_Chhokhopani.webp" data-name="Chhokhopani" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/05_Chhokhopani.webp" data-name="Chhokhopani" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.715687,83.664209" target="_blank" rel="noopener">28.715687, 83.664209</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">6</td>
+  <td class="name">Chhoyo</td>
+  <td class="vdc">Thasang</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/06_Chhoyo.webp" data-name="Chhoyo" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/06_Chhoyo.webp" data-name="Chhoyo" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.633797,83.619106" target="_blank" rel="noopener">28.633797, 83.619106</a></td>
+</tr>
+<tr data-rm="Lo_Ghekar_Damodarkunda" data-region="Upper">
+  <td class="num">7</td>
+  <td class="name">Chhunggar</td>
+  <td class="vdc">Dhami</td>
+  <td class="rm">Lo-Ghekar Damodarkunda</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/07_Chhunggar.webp" data-name="Chhunggar" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/07_Chhunggar.webp" data-name="Chhunggar" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.017807,83.84751" target="_blank" rel="noopener">29.017807, 83.847510</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Upper">
+  <td class="num">8</td>
+  <td class="name">Chhusang</td>
+  <td class="vdc">Chhusang</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/08_Chhusang.webp" data-name="Chhusang" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/08_Chhusang.webp" data-name="Chhusang" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.914367,83.819921" target="_blank" rel="noopener">28.914367, 83.819921</a></td>
+</tr>
+<tr data-rm="Gharapjhong" data-region="Lower">
+  <td class="num">9</td>
+  <td class="name">Chimang</td>
+  <td class="vdc">Tukuche</td>
+  <td class="rm">Gharapjhong</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/09_Chimang.webp" data-name="Chimang" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/09_Chimang.webp" data-name="Chimang" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.718999,83.676745" target="_blank" rel="noopener">28.718999, 83.676745</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Lower">
+  <td class="num">10</td>
+  <td class="name">Chongur</td>
+  <td class="vdc">Muktinath</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/10_Chongur.webp" data-name="Chongur" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/10_Chongur.webp" data-name="Chongur" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.824973,83.871128" target="_blank" rel="noopener">28.824973, 83.871128</a></td>
+</tr>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">11</td>
+  <td class="name">Chumjung</td>
+  <td class="vdc">Chhonhup</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/11_Chumjung.webp" data-name="Chumjung" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/11_Chumjung.webp" data-name="Chumjung" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.239483,83.938783" target="_blank" rel="noopener">29.239483, 83.938783</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Lower">
+  <td class="num">12</td>
+  <td class="name">Dhagarjung</td>
+  <td class="vdc">Kagbeni</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/12_Dhagarjung.webp" data-name="Dhagarjung" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/12_Dhagarjung.webp" data-name="Dhagarjung" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.822812,83.739378" target="_blank" rel="noopener">28.822812, 83.739378</a></td>
+</tr>
+<tr data-rm="Lo_Ghekar_Damodarkunda" data-region="Upper">
+  <td class="num">13</td>
+  <td class="name">Dhakmar</td>
+  <td class="vdc">Dhami</td>
+  <td class="rm">Lo-Ghekar Damodarkunda</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/13_Dhakmar.webp" data-name="Dhakmar" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/13_Dhakmar.webp" data-name="Dhakmar" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.090852,83.877681" target="_blank" rel="noopener">29.090852, 83.877681</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">14</td>
+  <td class="name">Dhampu</td>
+  <td class="vdc">Thasang</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/14_Dhampu.webp" data-name="Dhampu" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/14_Dhampu.webp" data-name="Dhampu" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.652509,83.597201" target="_blank" rel="noopener">28.652509, 83.597201</a></td>
+</tr>
+<tr data-rm="Lo_Ghekar_Damodarkunda" data-region="Upper">
+  <td class="num">15</td>
+  <td class="name">Dhe</td>
+  <td class="vdc">Surkhang</td>
+  <td class="rm">Lo-Ghekar Damodarkunda</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/15_Dhe.webp" data-name="Dhe" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/15_Dhe.webp" data-name="Dhe" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.041684,84.015368" target="_blank" rel="noopener">29.041684, 84.015368</a></td>
+</tr>
+<tr data-rm="Lo_Ghekar_Damodarkunda" data-region="Upper">
+  <td class="num">16</td>
+  <td class="name">Dhi</td>
+  <td class="vdc">Surkhang</td>
+  <td class="rm">Lo-Ghekar Damodarkunda</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/16_Dhi.webp" data-name="Dhi" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/16_Dhi.webp" data-name="Dhi" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.105734,83.974972" target="_blank" rel="noopener">29.105734, 83.974972</a></td>
+</tr>
+<tr data-rm="Gharapjhong" data-region="Lower">
+  <td class="num">17</td>
+  <td class="name">Dhonga</td>
+  <td class="vdc">Marpha</td>
+  <td class="rm">Gharapjhong</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/17_Dhonga.webp" data-name="Dhonga" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/17_Dhonga.webp" data-name="Dhonga" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.739131,83.683744" target="_blank" rel="noopener">28.739131, 83.683744</a></td>
+</tr>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">18</td>
+  <td class="name">Dhuk</td>
+  <td class="vdc">Lomanthang</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/18_Dhuk.webp" data-name="Dhuk" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/18_Dhuk.webp" data-name="Dhuk" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.222807,83.981938" target="_blank" rel="noopener">29.222807, 83.981938</a></td>
+</tr>
+<tr data-rm="Gharapjhong" data-region="Lower">
+  <td class="num">19</td>
+  <td class="name">Dhumba</td>
+  <td class="vdc">Marpha</td>
+  <td class="rm">Gharapjhong</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/19_Dhumba.webp" data-name="Dhumba" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/19_Dhumba.webp" data-name="Dhumba" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.764808,83.719129" target="_blank" rel="noopener">28.764808, 83.719129</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Lower">
+  <td class="num">20</td>
+  <td class="name">Ekle Bhatti</td>
+  <td class="vdc">Kagbeni</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/20_Ekle_Bhatti.webp" data-name="Ekle Bhatti" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/20_Ekle_Bhatti.webp" data-name="Ekle Bhatti" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.818421,83.773862" target="_blank" rel="noopener">28.818421, 83.773862</a></td>
+</tr>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">21</td>
+  <td class="name">Garphu</td>
+  <td class="vdc">Chhoser</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/21_Garphu.webp" data-name="Garphu" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/21_Garphu.webp" data-name="Garphu" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.234174,83.978538" target="_blank" rel="noopener">29.234174, 83.978538</a></td>
+</tr>
+<tr data-rm="Lo_Ghekar_Damodarkunda" data-region="Upper">
+  <td class="num">22</td>
+  <td class="name">Ghami</td>
+  <td class="vdc">Dhami</td>
+  <td class="rm">Lo-Ghekar Damodarkunda</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/22_Ghami.webp" data-name="Ghami" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/22_Ghami.webp" data-name="Ghami" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.063196,83.873295" target="_blank" rel="noopener">29.063196, 83.873295</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">23</td>
+  <td class="name">Ghansa</td>
+  <td class="vdc">Thasang</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/23_Ghansa.webp" data-name="Ghansa" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/23_Ghansa.webp" data-name="Ghansa" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.599464,83.642614" target="_blank" rel="noopener">28.599464, 83.642614</a></td>
+</tr>
+<tr data-rm="Lo_Ghekar_Damodarkunda" data-region="Upper">
+  <td class="num">24</td>
+  <td class="name">Ghara</td>
+  <td class="vdc">Surkhang</td>
+  <td class="rm">Lo-Ghekar Damodarkunda</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/24_Ghara.webp" data-name="Ghara" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/24_Ghara.webp" data-name="Ghara" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.096295,84.018774" target="_blank" rel="noopener">29.096295, 84.018774</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">25</td>
+  <td class="name">Ghasa</td>
+  <td class="vdc">Ghasa</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/25_Ghasa.webp" data-name="Ghasa" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/25_Ghasa.webp" data-name="Ghasa" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.608918,83.643546" target="_blank" rel="noopener">28.608918, 83.643546</a></td>
+</tr>
+<tr data-rm="Lo_Ghekar_Damodarkunda" data-region="Upper">
+  <td class="num">26</td>
+  <td class="name">Ghiling</td>
+  <td class="vdc">Dhami</td>
+  <td class="rm">Lo-Ghekar Damodarkunda</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/26_Ghiling.webp" data-name="Ghiling" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/26_Ghiling.webp" data-name="Ghiling" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.007765,83.857929" target="_blank" rel="noopener">29.007765, 83.857929</a></td>
+</tr>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">27</td>
+  <td class="name">Ghom</td>
+  <td class="vdc">Lomanthang</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/27_Ghom.webp" data-name="Ghom" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/27_Ghom.webp" data-name="Ghom" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.228406,83.978267" target="_blank" rel="noopener">29.228406, 83.978267</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Upper">
+  <td class="num">28</td>
+  <td class="name">Ghyakar</td>
+  <td class="vdc">Chhusang</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/28_Ghyakar.webp" data-name="Ghyakar" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/28_Ghyakar.webp" data-name="Ghyakar" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.937518,83.807685" target="_blank" rel="noopener">28.937518, 83.807685</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Upper">
+  <td class="num">29</td>
+  <td class="name">Gumbakang</td>
+  <td class="vdc">Chhusang</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/29_Gumbakang.webp" data-name="Gumbakang" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/29_Gumbakang.webp" data-name="Gumbakang" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.910343,83.812157" target="_blank" rel="noopener">28.910343, 83.812157</a></td>
+</tr>
+<tr data-rm="Lo_Ghekar_Damodarkunda" data-region="Upper">
+  <td class="num">30</td>
+  <td class="name">Jhaite</td>
+  <td class="vdc">Dhami</td>
+  <td class="rm">Lo-Ghekar Damodarkunda</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/30_Jhaite.webp" data-name="Jhaite" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/30_Jhaite.webp" data-name="Jhaite" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.027481,83.848801" target="_blank" rel="noopener">29.027481, 83.848801</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Lower">
+  <td class="num">31</td>
+  <td class="name">Jharkot</td>
+  <td class="vdc">Muktinath</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/31_Jharkot.webp" data-name="Jharkot" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/31_Jharkot.webp" data-name="Jharkot" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.818324,83.848879" target="_blank" rel="noopener">28.818324, 83.848879</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">32</td>
+  <td class="name">Jhipra Deurali</td>
+  <td class="vdc">Thasang</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/32_Jhipra_Deurali.webp" data-name="Jhipra Deurali" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/32_Jhipra_Deurali.webp" data-name="Jhipra Deurali" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.633823,83.632599" target="_blank" rel="noopener">28.633823, 83.632599</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Lower">
+  <td class="num">33</td>
+  <td class="name">Jhong</td>
+  <td class="vdc">Jhong</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/33_Jhong.webp" data-name="Jhong" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/33_Jhong.webp" data-name="Jhong" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.827946,83.855765" target="_blank" rel="noopener">28.827946, 83.855765</a></td>
+</tr>
+<tr data-rm="Gharapjhong" data-region="Lower">
+  <td class="num">34</td>
+  <td class="name">Jomsom</td>
+  <td class="vdc">Jomsom</td>
+  <td class="rm">Gharapjhong</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/34_Jomsom.webp" data-name="Jomsom" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/34_Jomsom.webp" data-name="Jomsom" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.782392,83.725683" target="_blank" rel="noopener">28.782392, 83.725683</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Upper">
+  <td class="num">35</td>
+  <td class="name">Kagbeni</td>
+  <td class="vdc">Kagbeni</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/35_Kagbeni.webp" data-name="Kagbeni" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/35_Kagbeni.webp" data-name="Kagbeni" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.837167,83.783558" target="_blank" rel="noopener">28.837167, 83.783558</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Lower">
+  <td class="num">36</td>
+  <td class="name">Khingga</td>
+  <td class="vdc">Jhong</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/36_Khingga.webp" data-name="Khingga" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/36_Khingga.webp" data-name="Khingga" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.820111,83.828371" target="_blank" rel="noopener">28.820111, 83.828371</a></td>
+</tr>
+<tr data-rm="Gharapjhong" data-region="Lower">
+  <td class="num">37</td>
+  <td class="name">Khutsab Terenga Gumba</td>
+  <td class="vdc">Jomsom</td>
+  <td class="rm">Gharapjhong</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/37_Khutsab_Terenga_Gumba.webp" data-name="Khutsab Terenga Gumba" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/37_Khutsab_Terenga_Gumba.webp" data-name="Khutsab Terenga Gumba" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.764968,83.707994" target="_blank" rel="noopener">28.764968, 83.707994</a></td>
+</tr>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">38</td>
+  <td class="name">Kimaling</td>
+  <td class="vdc">Chhonhup</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/38_Kimaling.webp" data-name="Kimaling" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/38_Kimaling.webp" data-name="Kimaling" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.219024,83.947489" target="_blank" rel="noopener">29.219024, 83.947489</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">39</td>
+  <td class="name">Kobang</td>
+  <td class="vdc">Kowang</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/39_Kobang.webp" data-name="Kobang" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/39_Kobang.webp" data-name="Kobang" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.689948,83.616885" target="_blank" rel="noopener">28.689948, 83.616885</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">40</td>
+  <td class="name">Kokhethanti</td>
+  <td class="vdc">Thasang</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/40_Kokhethanti.webp" data-name="Kokhethanti" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/40_Kokhethanti.webp" data-name="Kokhethanti" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.666324,83.595969" target="_blank" rel="noopener">28.666324, 83.595969</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">41</td>
+  <td class="name">Kopchepani</td>
+  <td class="vdc">Kunjo</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/41_Kopchepani.webp" data-name="Kopchepani" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/41_Kopchepani.webp" data-name="Kopchepani" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.563422,83.638798" target="_blank" rel="noopener">28.563422, 83.638798</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">42</td>
+  <td class="name">Larjung</td>
+  <td class="vdc">Kowang</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/42_Larjung.webp" data-name="Larjung" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/42_Larjung.webp" data-name="Larjung" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.686613,83.614448" target="_blank" rel="noopener">28.686613, 83.614448</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">43</td>
+  <td class="name">Lete (Kalopani)</td>
+  <td class="vdc">Lete</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/43_Lete_(Kalopani).webp" data-name="Lete (Kalopani)" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/43_Lete_(Kalopani).webp" data-name="Lete (Kalopani)" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.636106,83.604428" target="_blank" rel="noopener">28.636106, 83.604428</a></td>
+</tr>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">44</td>
+  <td class="name">Lo Manthang</td>
+  <td class="vdc">Lomanthang</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/44_Lo_Manthang.webp" data-name="Lo Manthang" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/44_Lo_Manthang.webp" data-name="Lo Manthang" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.18316,83.95721" target="_blank" rel="noopener">29.183160, 83.957210</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Lower">
+  <td class="num">45</td>
+  <td class="name">Lupra</td>
+  <td class="vdc">Lupra</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/45_Lupra.webp" data-name="Lupra" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/45_Lupra.webp" data-name="Lupra" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.802258,83.791571" target="_blank" rel="noopener">28.802258, 83.791571</a></td>
+</tr>
+<tr data-rm="Lo_Ghekar_Damodarkunda" data-region="Upper">
+  <td class="num">46</td>
+  <td class="name">Marang</td>
+  <td class="vdc">Charang</td>
+  <td class="rm">Lo-Ghekar Damodarkunda</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/46_Marang.webp" data-name="Marang" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/46_Marang.webp" data-name="Marang" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.114656,83.909105" target="_blank" rel="noopener">29.114656, 83.909105</a></td>
+</tr>
+<tr data-rm="Gharapjhong" data-region="Lower">
+  <td class="num">47</td>
+  <td class="name">Marpha</td>
+  <td class="vdc">Marpha</td>
+  <td class="rm">Gharapjhong</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/47_Marpha.webp" data-name="Marpha" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/47_Marpha.webp" data-name="Marpha" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.742917,83.682099" target="_blank" rel="noopener">28.742917, 83.682099</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Lower">
+  <td class="num">48</td>
+  <td class="name">Muktinath</td>
+  <td class="vdc">Muktinath</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/48_Muktinath.webp" data-name="Muktinath" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/48_Muktinath.webp" data-name="Muktinath" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.816787,83.871148" target="_blank" rel="noopener">28.816787, 83.871148</a></td>
+</tr>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">49</td>
+  <td class="name">Namgyal</td>
+  <td class="vdc">Lomanthang</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/49_Namgyal.webp" data-name="Namgyal" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/49_Namgyal.webp" data-name="Namgyal" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.191249,83.950076" target="_blank" rel="noopener">29.191249, 83.950076</a></td>
+</tr>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">50</td>
+  <td class="name">Namsung</td>
+  <td class="vdc">Chhoser</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/50_Namsung.webp" data-name="Namsung" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/50_Namsung.webp" data-name="Namsung" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.207697,83.973443" target="_blank" rel="noopener">29.207697, 83.973443</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">51</td>
+  <td class="name">Naurikot</td>
+  <td class="vdc">Kowang</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/51_Naurikot.webp" data-name="Naurikot" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/51_Naurikot.webp" data-name="Naurikot" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.687502,83.606298" target="_blank" rel="noopener">28.687502, 83.606298</a></td>
+</tr>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">52</td>
+  <td class="name">Nenyul</td>
+  <td class="vdc">Chhoser</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/52_Nenyul.webp" data-name="Nenyul" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/52_Nenyul.webp" data-name="Nenyul" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.198356,83.968181" target="_blank" rel="noopener">29.198356, 83.968181</a></td>
+</tr>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">53</td>
+  <td class="name">Nhichung</td>
+  <td class="vdc">Chhonhup</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/53_Nhichung.webp" data-name="Nhichung" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/53_Nhichung.webp" data-name="Nhichung" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.240778,83.96042" target="_blank" rel="noopener">29.240778, 83.960420</a></td>
+</tr>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">54</td>
+  <td class="name">Nyamdo</td>
+  <td class="vdc">Chhonhup</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/54_Nyamdo.webp" data-name="Nyamdo" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/54_Nyamdo.webp" data-name="Nyamdo" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.238345,83.954877" target="_blank" rel="noopener">29.238345, 83.954877</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Lower">
+  <td class="num">55</td>
+  <td class="name">Old Muktinath</td>
+  <td class="vdc">Muktinath</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/55_Old_Muktinath.webp" data-name="Old Muktinath" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/55_Old_Muktinath.webp" data-name="Old Muktinath" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.821062,83.862897" target="_blank" rel="noopener">28.821062, 83.862897</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">56</td>
+  <td class="name">Pairothapla</td>
+  <td class="vdc">Thasang</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/56_Pairothapla.webp" data-name="Pairothapla" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/56_Pairothapla.webp" data-name="Pairothapla" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.576783,83.646327" target="_blank" rel="noopener">28.576783, 83.646327</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Lower">
+  <td class="num">57</td>
+  <td class="name">Pangling</td>
+  <td class="vdc">Kagbeni</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/57_Pangling.webp" data-name="Pangling" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/57_Pangling.webp" data-name="Pangling" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.819919,83.763238" target="_blank" rel="noopener">28.819919, 83.763238</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Lower">
+  <td class="num">58</td>
+  <td class="name">Phalyak</td>
+  <td class="vdc">Kagbeni</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/58_Phalyak.webp" data-name="Phalyak" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/58_Phalyak.webp" data-name="Phalyak" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.825448,83.7469" target="_blank" rel="noopener">28.825448, 83.746900</a></td>
+</tr>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">59</td>
+  <td class="name">Phuwa</td>
+  <td class="vdc">Lomanthang</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/59_Phuwa.webp" data-name="Phuwa" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/59_Phuwa.webp" data-name="Phuwa" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.201954,83.94972" target="_blank" rel="noopener">29.201954, 83.949720</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Lower">
+  <td class="num">60</td>
+  <td class="name">Purang</td>
+  <td class="vdc">Muktinath</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/60_Purang.webp" data-name="Purang" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/60_Purang.webp" data-name="Purang" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.820726,83.859339" target="_blank" rel="noopener">28.820726, 83.859339</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Lower">
+  <td class="num">61</td>
+  <td class="name">Putak</td>
+  <td class="vdc">Jhong</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/61_Putak.webp" data-name="Putak" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/61_Putak.webp" data-name="Putak" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.828375,83.843501" target="_blank" rel="noopener">28.828375, 83.843501</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Lower">
+  <td class="num">62</td>
+  <td class="name">Ranipauwa</td>
+  <td class="vdc">Muktinath</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/62_Ranipauwa.webp" data-name="Ranipauwa" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/62_Ranipauwa.webp" data-name="Ranipauwa" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.815132,83.862618" target="_blank" rel="noopener">28.815132, 83.862618</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Upper">
+  <td class="num">63</td>
+  <td class="name">Samar</td>
+  <td class="vdc">Chhusang</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/63_Samar.webp" data-name="Samar" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/63_Samar.webp" data-name="Samar" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.961958,83.801727" target="_blank" rel="noopener">28.961958, 83.801727</a></td>
+</tr>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">64</td>
+  <td class="name">Samjhong</td>
+  <td class="vdc">Chhoser</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/64_Samjhong.webp" data-name="Samjhong" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/64_Samjhong.webp" data-name="Samjhong" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.226648,84.027654" target="_blank" rel="noopener">29.226648, 84.027654</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Upper">
+  <td class="num">65</td>
+  <td class="name">Sangda</td>
+  <td class="vdc">Sangda</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/65_Sangda.webp" data-name="Sangda" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/65_Sangda.webp" data-name="Sangda" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.904069,83.677913" target="_blank" rel="noopener">28.904069, 83.677913</a></td>
+</tr>
+<tr data-rm="Lo_Ghekar_Damodarkunda" data-region="Upper">
+  <td class="num">66</td>
+  <td class="name">Saukre</td>
+  <td class="vdc">Lomanthang</td>
+  <td class="rm">Lo-Ghekar Damodarkunda</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/66_Saukre.webp" data-name="Saukre" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/66_Saukre.webp" data-name="Saukre" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.120409,83.896362" target="_blank" rel="noopener">29.120409, 83.896362</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">67</td>
+  <td class="name">Sauru</td>
+  <td class="vdc">Kowang</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/67_Sauru.webp" data-name="Sauru" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/67_Sauru.webp" data-name="Sauru" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.692007,83.629986" target="_blank" rel="noopener">28.692007, 83.629986</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">68</td>
+  <td class="name">Sirkung</td>
+  <td class="vdc">Thasang</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/68_Sirkung.webp" data-name="Sirkung" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/68_Sirkung.webp" data-name="Sirkung" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.676607,83.617905" target="_blank" rel="noopener">28.676607, 83.617905</a></td>
+</tr>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">69</td>
+  <td class="name">Sisa</td>
+  <td class="vdc">Lomanthang</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/69_Sisa.webp" data-name="Sisa" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/69_Sisa.webp" data-name="Sisa" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.217519,83.981004" target="_blank" rel="noopener">29.217519, 83.981004</a></td>
+</tr>
+<tr data-rm="Lo_Ghekar_Damodarkunda" data-region="Upper">
+  <td class="num">70</td>
+  <td class="name">Surkhang</td>
+  <td class="vdc">Surkhang</td>
+  <td class="rm">Lo-Ghekar Damodarkunda</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/70_Surkhang.webp" data-name="Surkhang" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/70_Surkhang.webp" data-name="Surkhang" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.098451,83.974747" target="_blank" rel="noopener">29.098451, 83.974747</a></td>
+</tr>
+<tr data-rm="Lo_Ghekar_Damodarkunda" data-region="Upper">
+  <td class="num">71</td>
+  <td class="name">Syanboche</td>
+  <td class="vdc">Dhami</td>
+  <td class="rm">Lo-Ghekar Damodarkunda</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/71_Syanboche.webp" data-name="Syanboche" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/71_Syanboche.webp" data-name="Syanboche" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.991238,83.838494" target="_blank" rel="noopener">28.991238, 83.838494</a></td>
+</tr>
+<tr data-rm="Gharapjhong" data-region="Lower">
+  <td class="num">72</td>
+  <td class="name">Syang</td>
+  <td class="vdc">Jomsom</td>
+  <td class="rm">Gharapjhong</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/72_Syang.webp" data-name="Syang" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/72_Syang.webp" data-name="Syang" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.77515,83.707926" target="_blank" rel="noopener">28.775150, 83.707926</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">73</td>
+  <td class="name">Tal Bagar</td>
+  <td class="vdc">Kunjo</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/73_Tal_Bagar.webp" data-name="Tal Bagar" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/73_Tal_Bagar.webp" data-name="Tal Bagar" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.56826,83.639496" target="_blank" rel="noopener">28.568260, 83.639496</a></td>
+</tr>
+<tr data-rm="Lo_Ghekar_Damodarkunda" data-region="Upper">
+  <td class="num">74</td>
+  <td class="name">Tamagaon</td>
+  <td class="vdc">Dhami</td>
+  <td class="rm">Lo-Ghekar Damodarkunda</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/74_Tamagaon.webp" data-name="Tamagaon" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/74_Tamagaon.webp" data-name="Tamagaon" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.005863,83.847741" target="_blank" rel="noopener">29.005863, 83.847741</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Upper">
+  <td class="num">75</td>
+  <td class="name">Tangbe</td>
+  <td class="vdc">Chhusang</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/75_Tangbe.webp" data-name="Tangbe" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/75_Tangbe.webp" data-name="Tangbe" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.889682,83.804748" target="_blank" rel="noopener">28.889682, 83.804748</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Upper">
+  <td class="num">76</td>
+  <td class="name">Tetang</td>
+  <td class="vdc">Chhusang</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/76_Tetang.webp" data-name="Tetang" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/76_Tetang.webp" data-name="Tetang" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.908448,83.83483" target="_blank" rel="noopener">28.908448, 83.834830</a></td>
+</tr>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">77</td>
+  <td class="name">Thinggar</td>
+  <td class="vdc">Lomanthang</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/77_Thinggar.webp" data-name="Thinggar" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/77_Thinggar.webp" data-name="Thinggar" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.206379,83.939736" target="_blank" rel="noopener">29.206379, 83.939736</a></td>
+</tr>
+<tr data-rm="Gharapjhong" data-region="Lower">
+  <td class="num">78</td>
+  <td class="name">Thinigaon</td>
+  <td class="vdc">Jomsom</td>
+  <td class="rm">Gharapjhong</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/78_Thinigaon.webp" data-name="Thinigaon" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/78_Thinigaon.webp" data-name="Thinigaon" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.771314,83.727077" target="_blank" rel="noopener">28.771314, 83.727077</a></td>
+</tr>
+<tr data-rm="Varagung_Muktichhetra" data-region="Upper">
+  <td class="num">79</td>
+  <td class="name">Tiri</td>
+  <td class="vdc">Kagbeni</td>
+  <td class="rm">Varagung Muktichhetra</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/79_Tiri.webp" data-name="Tiri" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/79_Tiri.webp" data-name="Tiri" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.850062,83.784642" target="_blank" rel="noopener">28.850062, 83.784642</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">80</td>
+  <td class="name">Titi</td>
+  <td class="vdc">Kunjo</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/80_Titi.webp" data-name="Titi" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/80_Titi.webp" data-name="Titi" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.653461,83.613887" target="_blank" rel="noopener">28.653461, 83.613887</a></td>
+</tr>
+<tr data-rm="Lo_Ghekar_Damodarkunda" data-region="Upper">
+  <td class="num">81</td>
+  <td class="name">Tsarang</td>
+  <td class="vdc">Charang</td>
+  <td class="rm">Lo-Ghekar Damodarkunda</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/81_Tsarang.webp" data-name="Tsarang" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/81_Tsarang.webp" data-name="Tsarang" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.092796,83.931147" target="_blank" rel="noopener">29.092796, 83.931147</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">82</td>
+  <td class="name">Tuclung</td>
+  <td class="vdc">Kunjo</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/82_Tuclung.webp" data-name="Tuclung" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/82_Tuclung.webp" data-name="Tuclung" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.648775,83.633142" target="_blank" rel="noopener">28.648775, 83.633142</a></td>
+</tr>
+<tr data-rm="Thasang" data-region="Lower">
+  <td class="num">83</td>
+  <td class="name">Tukuche</td>
+  <td class="vdc">Tukuche</td>
+  <td class="rm">Thasang</td>
+  <td class="region-col"><span class="region-badge lower">Lower</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/83_Tukuche.webp" data-name="Tukuche" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/83_Tukuche.webp" data-name="Tukuche" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=28.71021,83.644627" target="_blank" rel="noopener">28.710210, 83.644627</a></td>
+</tr>
+<tr data-rm="Lomanthang" data-region="Upper">
+  <td class="num">84</td>
+  <td class="name">Yachebu</td>
+  <td class="vdc">Chhoser</td>
+  <td class="rm">Lomanthang</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/84_Yachebu.webp" data-name="Yachebu" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/84_Yachebu.webp" data-name="Yachebu" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.233469,83.9743" target="_blank" rel="noopener">29.233469, 83.974300</a></td>
+</tr>
+<tr data-rm="Lo_Ghekar_Damodarkunda" data-region="Upper">
+  <td class="num">85</td>
+  <td class="name">Yara</td>
+  <td class="vdc">Surkhang</td>
+  <td class="rm">Lo-Ghekar Damodarkunda</td>
+  <td class="region-col"><span class="region-badge upper">Upper</span></td>
+  <td class="img-col"><button class="img-btn" data-img="Satellite/85_Yara.webp" data-name="Yara" data-kind="Satellite" type="button" title="View satellite image">View</button></td><td class="img-col"><button class="img-btn" data-img="Locator/85_Yara.webp" data-name="Yara" data-kind="Locator" type="button" title="View locator image">View</button></td><td class="coord"><a href="https://www.google.com/maps?q=29.095079,83.999289" target="_blank" rel="noopener">29.095079, 83.999289</a></td>
+</tr>
+</tbody>
+</table>
+<div class="empty" id="empty" style="display:none">No matching entries</div>
+</div>
+</section>
+
+<section class="section" id="image-data">
+  <div class="section-head">
+    <p class="kicker">Field and Street-Level Images</p>
+    <h1>Image Data</h1>
+    <p class="section-copy">The ground-sensing dataset combines active field photography, vehicle-mounted video frames, and public street-view imagery to document settlement-level variation in building style, quality and performance.</p>
+  </div>
+
+  <div class="data-summary">
+    <div class="source-card">
+      <h3>iPhone Field Photos</h3>
+      <p>Researcher-collected on-foot facade photography. After filtering, the dataset contains 3,975 photos across 41 settlements.</p>
+    </div>
+    <div class="source-card">
+      <h3>GoPro Survey Images</h3>
+      <p>Vehicle-mounted forward-facing survey imagery along road-accessible corridors, with 221 filtered frames across 17 settlements.</p>
+    </div>
+    <div class="source-card">
+      <h3>Google Street View</h3>
+      <p>Supplementary public panoramic imagery sampled along available Street View coverage, with 2,299 filtered images across 25 settlements.</p>
+    </div>
+  </div>
+
+  <div class="data-panel">
+    <div class="gallery-tools">
+      <div class="data-toolbar" aria-label="Image source filters">
+        <button class="data-source active" data-source="all" type="button">All Sources</button>
+        <button class="data-source" data-source="iphone" type="button">iPhone</button>
+        <button class="data-source" data-source="gopro" type="button">GoPro</button>
+        <button class="data-source" data-source="gsv" type="button">Google Street View</button>
+      </div>
+      <input class="gallery-search" id="gallerySearch" type="search" placeholder="Search settlement folders..." autocomplete="off">
+    </div>
+
+    <div class="gallery-status" id="galleryStatus">
+      <strong>Image gallery is ready for upload.</strong>
+      <span>Upload images/image-data/manifest.json and the source folders to show settlement image cards here.</span>
+    </div>
+    <div class="gallery-grid" id="galleryGrid" aria-live="polite"></div>
+  </div>
+</section>
+
+<footer>
+  Mustang Settlements · 85 settlements · 5 rural municipalities · satellite, locator, and field-image catalogue
+</footer>
+
+</main>
+
+<!-- Lightbox -->
+<div id="lightbox" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="lb-inner" id="lbInner">
+    <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
+    <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous village">‹</button>
+    <button class="lb-nav lb-next" id="lbNext" aria-label="Next village">›</button>
+    <div class="lb-toggle">
+      <button id="lbTabSat" data-kind="Satellite" type="button">Satellite</button>
+      <button id="lbTabLoc" data-kind="Locator" type="button">Locator</button>
+    </div>
+    <img id="lbImg" alt="">
+    <div class="lb-caption">
+      <span class="lb-name" id="lbName"></span>
+      <span class="lb-meta" id="lbMeta"></span>
+    </div>
+  </div>
+</div>
+
+<div id="fieldbox" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="fieldbox-inner">
+    <button class="fieldbox-close" id="fieldboxClose" aria-label="Close">✕</button>
+    <button class="fieldbox-nav fieldbox-prev" id="fieldboxPrev" aria-label="Previous image">‹</button>
+    <button class="fieldbox-nav fieldbox-next" id="fieldboxNext" aria-label="Next image">›</button>
+    <img id="fieldboxImg" alt="">
+    <div class="fieldbox-caption">
+      <strong id="fieldboxTitle"></strong>
+      <span id="fieldboxMeta"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+const rows = Array.from(document.querySelectorAll('#tbl tbody tr'));
+const search = document.getElementById('search');
+const empty = document.getElementById('empty');
+
+let activeRM = '';
+let activeRegion = '';
+
+function applyFilter() {
+  const q = search.value.trim().toLowerCase();
+  let visible = 0;
+  rows.forEach(tr => {
+    const txt = tr.textContent.toLowerCase();
+    const matchSearch = !q || txt.includes(q);
+    const matchRM = !activeRM || tr.dataset.rm === activeRM;
+    const matchRegion = !activeRegion || tr.dataset.region === activeRegion;
+    const show = matchSearch && matchRM && matchRegion;
+    tr.classList.toggle('hidden', !show);
+    if (show) visible++;
+  });
+  empty.style.display = visible === 0 ? 'block' : 'none';
+}
+
+search.addEventListener('input', applyFilter);
+
+document.querySelectorAll('.rm-filter').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.rm-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeRM = btn.dataset.rm;
+    applyFilter();
+  });
+});
+
+document.querySelectorAll('.region-filter').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.region-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeRegion = btn.dataset.region;
+    applyFilter();
+  });
+});
+
+let sortCol = -1, sortAsc = true;
+document.querySelectorAll('th.sortable').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = parseInt(th.dataset.col);
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+
+    document.querySelectorAll('th.sortable').forEach(x => x.classList.remove('sort-asc', 'sort-desc'));
+    th.classList.add(sortAsc ? 'sort-asc' : 'sort-desc');
+
+    const tbody = document.querySelector('#tbl tbody');
+    const sorted = [...rows].sort((a, b) => {
+      let va = a.children[col].textContent.trim();
+      let vb = b.children[col].textContent.trim();
+      if (col === 0) { va = parseInt(va); vb = parseInt(vb); return sortAsc ? va-vb : vb-va; }
+      return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    });
+    sorted.forEach(tr => tbody.appendChild(tr));
+  });
+});
+
+/* ---------- Image Data Gallery ---------- */
+const galleryGrid = document.getElementById('galleryGrid');
+const galleryStatus = document.getElementById('galleryStatus');
+const gallerySearch = document.getElementById('gallerySearch');
+const sourceLabels = {
+  iphone: 'iPhone',
+  gopro: 'GoPro',
+  gsv: 'Google Street View'
+};
+const sourceOrder = ['iphone', 'gopro', 'gsv'];
+let gallerySource = 'all';
+let galleryImages = [];
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[char]));
+}
+
+function sourceRank(source) {
+  const index = sourceOrder.indexOf(source);
+  return index === -1 ? 99 : index;
+}
+
+function settlementRank(folder) {
+  const match = String(folder || '').match(/^(\d+)/);
+  return match ? Number(match[1]) : 999;
+}
+
+function normalizeGalleryData(data) {
+  const images = Array.isArray(data?.images) ? data.images : [];
+  return images
+    .filter(item => item && item.src && item.source && item.settlement_folder)
+    .map((item, index) => ({
+      ...item,
+      index,
+      source: String(item.source).toLowerCase(),
+      settlement_name: item.settlement_name || String(item.settlement_folder).replace(/^\d+_?/, '').replaceAll('_', ' '),
+      filename: item.filename || String(item.src).split('/').pop()
+    }));
+}
+
+function showGalleryStatus(title, detail) {
+  galleryStatus.style.display = 'block';
+  galleryStatus.innerHTML = `<strong>${escapeHtml(title)}</strong><span>${escapeHtml(detail)}</span>`;
+}
+
+function hideGalleryStatus() {
+  galleryStatus.style.display = 'none';
+}
+
+function groupedGalleryImages() {
+  const query = gallerySearch.value.trim().toLowerCase();
+  const filtered = galleryImages.filter(item => {
+    const sourceMatches = gallerySource === 'all' || item.source === gallerySource;
+    const queryText = `${item.settlement_name} ${item.settlement_folder} ${sourceLabels[item.source] || item.source}`.toLowerCase();
+    return sourceMatches && (!query || queryText.includes(query));
+  });
+
+  const groups = new Map();
+  filtered.forEach(item => {
+    const key = `${item.source}::${item.settlement_folder}`;
+    if (!groups.has(key)) {
+      groups.set(key, {
+        source: item.source,
+        settlement_folder: item.settlement_folder,
+        settlement_name: item.settlement_name,
+        images: []
+      });
+    }
+    groups.get(key).images.push(item);
+  });
+
+  return Array.from(groups.values()).sort((a, b) => {
+    const bySource = sourceRank(a.source) - sourceRank(b.source);
+    if (bySource) return bySource;
+    const byNumber = settlementRank(a.settlement_folder) - settlementRank(b.settlement_folder);
+    if (byNumber) return byNumber;
+    return a.settlement_name.localeCompare(b.settlement_name);
+  });
+}
+
+function renderGallery() {
+  if (!galleryImages.length) return;
+  const groups = groupedGalleryImages();
+  galleryGrid.innerHTML = '';
+
+  if (!groups.length) {
+    showGalleryStatus('No matching image folders.', 'Try another source filter or settlement search.');
+    return;
+  }
+
+  hideGalleryStatus();
+  const html = groups.map(group => {
+    const previews = group.images.slice(0, 5).map(item => `
+      <button class="gallery-thumb" type="button" data-gallery-index="${item.index}" aria-label="Open ${escapeHtml(item.filename)}">
+        <img src="${escapeHtml(item.thumb_src || item.src)}" loading="lazy" decoding="async" alt="${escapeHtml(group.settlement_name)} ${escapeHtml(sourceLabels[item.source] || item.source)}">
+      </button>
+    `).join('');
+    const moreImage = group.images[5] || group.images[group.images.length - 1];
+    const more = group.images.length > 5 ? `<div class="thumb-more" style="background-image:url('${escapeHtml(moreImage.thumb_src || moreImage.src)}')"><span>+${group.images.length - 5}</span></div>` : '';
+    return `
+      <article class="gallery-card" data-gallery-index="${group.images[0].index}" tabindex="0" role="button" aria-label="Open ${escapeHtml(group.settlement_name)} ${escapeHtml(sourceLabels[group.source] || group.source)} image folder">
+        <div class="gallery-card-head">
+          <div class="gallery-card-title">
+            <h3>${escapeHtml(group.settlement_name)}</h3>
+            <span class="source-pill">${escapeHtml(sourceLabels[group.source] || group.source)}</span>
+          </div>
+          <div class="gallery-meta">${escapeHtml(group.settlement_folder)} · ${group.images.length.toLocaleString()} images</div>
+        </div>
+        <div class="thumb-strip">${previews}${more}</div>
+      </article>
+    `;
+  }).join('');
+  galleryGrid.innerHTML = html;
+}
+
+async function loadImageDataManifest() {
+  try {
+    const response = await fetch('./images/image-data/manifest.json');
+    if (!response.ok) throw new Error(`manifest ${response.status}`);
+    const data = await response.json();
+    galleryImages = normalizeGalleryData(data);
+    if (!galleryImages.length) {
+      showGalleryStatus('No images found in manifest.', 'Regenerate manifest.json after confirming the image-data folders contain WebP files.');
+      return;
+    }
+    renderGallery();
+  } catch (error) {
+    showGalleryStatus(
+      'Image gallery is ready for upload.',
+      'Upload images/image-data/manifest.json and the source folders to show settlement image cards here.'
+    );
+  }
+}
+
+document.querySelectorAll('.data-source').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.data-source').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    gallerySource = btn.dataset.source;
+    renderGallery();
+  });
+});
+
+gallerySearch.addEventListener('input', renderGallery);
+
+galleryGrid.addEventListener('click', event => {
+  const button = event.target.closest('.gallery-thumb');
+  const card = event.target.closest('.gallery-card');
+  const index = button ? button.dataset.galleryIndex : card?.dataset.galleryIndex;
+  if (index === undefined) return;
+  const item = galleryImages[Number(index)];
+  if (item) openFieldbox(item);
+});
+
+galleryGrid.addEventListener('keydown', event => {
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  const card = event.target.closest('.gallery-card');
+  if (!card) return;
+  event.preventDefault();
+  const item = galleryImages[Number(card.dataset.galleryIndex)];
+  if (item) openFieldbox(item);
+});
+
+loadImageDataManifest();
+
+/* ---------- Lightbox ---------- */
+const lightbox = document.getElementById('lightbox');
+const lbImg    = document.getElementById('lbImg');
+const lbName   = document.getElementById('lbName');
+const lbMeta   = document.getElementById('lbMeta');
+const lbInner  = document.getElementById('lbInner');
+const lbClose  = document.getElementById('lbClose');
+const lbPrev   = document.getElementById('lbPrev');
+const lbNext   = document.getElementById('lbNext');
+const lbTabSat = document.getElementById('lbTabSat');
+const lbTabLoc = document.getElementById('lbTabLoc');
+const fieldbox = document.getElementById('fieldbox');
+const fieldboxImg = document.getElementById('fieldboxImg');
+const fieldboxTitle = document.getElementById('fieldboxTitle');
+const fieldboxMeta = document.getElementById('fieldboxMeta');
+const fieldboxClose = document.getElementById('fieldboxClose');
+const fieldboxPrev = document.getElementById('fieldboxPrev');
+const fieldboxNext = document.getElementById('fieldboxNext');
+
+let currentRow  = null;     // <tr> currently shown
+let currentKind = 'Satellite'; // 'Satellite' or 'Locator'
+let activeFieldImages = [];
+let activeFieldIndex = 0;
+
+function visibleRows() {
+  return rows.filter(tr => !tr.classList.contains('hidden'));
+}
+
+function showImageForRow(tr, kind) {
+  if (!tr) return;
+  currentRow  = tr;
+  currentKind = kind;
+
+  const num  = tr.children[0].textContent.trim();
+  const name = tr.children[1].textContent.trim();
+  const vdc  = tr.children[2].textContent.trim();
+  const rm   = tr.children[3].textContent.trim();
+
+  const button = tr.querySelector(`.img-btn[data-kind="${kind}"]`);
+  const imagePath = button ? button.dataset.img : '';
+  const src = imagePath ? `./images/${imagePath}` : '';
+
+  // Reset error state
+  const oldError = lbInner.querySelector('.lb-error');
+  if (oldError) oldError.remove();
+  lbImg.style.display = '';
+
+  lbImg.src = src;
+  lbImg.alt = `${name} ${kind}`;
+  lbName.textContent = `${num}. ${name}`;
+  lbMeta.textContent = `${vdc} · ${rm}`;
+
+  lbTabSat.classList.toggle('active', kind === 'Satellite');
+  lbTabLoc.classList.toggle('active', kind === 'Locator');
+
+  lightbox.dataset.currentSrc = src;
+}
+
+function openLightboxFromButton(btn) {
+  const tr = btn.closest('tr');
+  const kind = btn.dataset.kind;
+  showImageForRow(tr, kind);
+  lightbox.classList.add('open');
+  lightbox.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  lightbox.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  lbImg.src = '';
+  currentRow = null;
+}
+
+function navigateRow(direction) {
+  const list = visibleRows();
+  if (list.length === 0 || !currentRow) return;
+  let idx = list.indexOf(currentRow);
+  if (idx === -1) idx = 0;
+  idx = (idx + direction + list.length) % list.length;
+  showImageForRow(list[idx], currentKind);
+}
+
+// Wire up all view buttons
+document.querySelectorAll('.img-btn').forEach(btn => {
+  btn.addEventListener('click', () => openLightboxFromButton(btn));
+});
+
+// Toggle between Satellite / Locator inside the lightbox
+lbTabSat.addEventListener('click', () => { if (currentRow) showImageForRow(currentRow, 'Satellite'); });
+lbTabLoc.addEventListener('click', () => { if (currentRow) showImageForRow(currentRow, 'Locator'); });
+
+// Image error handling: friendly message
+lbImg.addEventListener('error', () => {
+  if (!lbImg.getAttribute('src')) return;
+  const filename = lbImg.src.split('/').pop();
+  const folder = currentKind;
+  lbImg.style.display = 'none';
+  const old = lbInner.querySelector('.lb-error');
+  if (old) old.remove();
+  const msg = document.createElement('div');
+  msg.className = 'lb-error';
+  msg.innerHTML = `Image not found.<span class="fname">${folder}/${filename}</span>`;
+  lbInner.insertBefore(msg, lbImg);
+});
+
+// Close interactions
+lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+lbClose.addEventListener('click', closeLightbox);
+lbPrev.addEventListener('click', e => { e.stopPropagation(); navigateRow(-1); });
+lbNext.addEventListener('click', e => { e.stopPropagation(); navigateRow(1); });
+
+function imagesForFieldItem(item) {
+  return galleryImages
+    .filter(candidate => (
+      candidate.source === item.source &&
+      candidate.settlement_folder === item.settlement_folder
+    ))
+    .sort((a, b) => a.filename.localeCompare(b.filename, undefined, { numeric: true }));
+}
+
+function showFieldImage(index) {
+  if (!activeFieldImages.length) return;
+  activeFieldIndex = (index + activeFieldImages.length) % activeFieldImages.length;
+  const item = activeFieldImages[activeFieldIndex];
+  const sourceLabel = sourceLabels[item.source] || item.source;
+
+  fieldboxImg.src = item.src;
+  fieldboxImg.alt = `${item.settlement_name} ${sourceLabel}`;
+  fieldboxTitle.textContent = item.settlement_name;
+  fieldboxMeta.textContent = `${sourceLabel} · ${activeFieldIndex + 1}/${activeFieldImages.length} · ${item.filename}`;
+
+  const hasMultiple = activeFieldImages.length > 1;
+  fieldboxPrev.style.display = hasMultiple ? '' : 'none';
+  fieldboxNext.style.display = hasMultiple ? '' : 'none';
+}
+
+function openFieldbox(item) {
+  activeFieldImages = imagesForFieldItem(item);
+  activeFieldIndex = Math.max(0, activeFieldImages.findIndex(candidate => candidate.index === item.index));
+  showFieldImage(activeFieldIndex);
+  fieldbox.classList.add('open');
+  fieldbox.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function navigateFieldbox(direction) {
+  showFieldImage(activeFieldIndex + direction);
+}
+
+function closeFieldbox() {
+  fieldbox.classList.remove('open');
+  fieldbox.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  fieldboxImg.src = '';
+  activeFieldImages = [];
+  activeFieldIndex = 0;
+}
+
+fieldbox.addEventListener('click', e => { if (e.target === fieldbox) closeFieldbox(); });
+fieldboxClose.addEventListener('click', closeFieldbox);
+fieldboxPrev.addEventListener('click', e => { e.stopPropagation(); navigateFieldbox(-1); });
+fieldboxNext.addEventListener('click', e => { e.stopPropagation(); navigateFieldbox(1); });
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (fieldbox.classList.contains('open')) {
+    if (e.key === 'Escape') closeFieldbox();
+    else if (e.key === 'ArrowLeft') navigateFieldbox(-1);
+    else if (e.key === 'ArrowRight') navigateFieldbox(1);
+    return;
+  }
+  if (!lightbox.classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  else if (e.key === 'ArrowLeft')  navigateRow(-1);
+  else if (e.key === 'ArrowRight') navigateRow(1);
+  else if (e.key === '1' || e.key === 's' || e.key === 'S') { if (currentRow) showImageForRow(currentRow, 'Satellite'); }
+  else if (e.key === '2' || e.key === 'l' || e.key === 'L') { if (currentRow) showImageForRow(currentRow, 'Locator'); }
+});
+</script>
+
+</body>
+</html>
