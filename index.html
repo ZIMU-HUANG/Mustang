@@ -1911,7 +1911,7 @@ function renderGallery() {
   const html = groups.map(group => {
     const previews = group.images.slice(0, 5).map(item => `
       <button class="gallery-thumb" type="button" data-gallery-index="${item.index}" aria-label="Open ${escapeHtml(item.filename)}">
-        <img src="${escapeHtml(item.src)}" loading="lazy" alt="${escapeHtml(group.settlement_name)} ${escapeHtml(sourceLabels[item.source] || item.source)}">
+        <img src="${escapeHtml(item.thumb_src || item.src)}" loading="lazy" decoding="async" alt="${escapeHtml(group.settlement_name)} ${escapeHtml(sourceLabels[item.source] || item.source)}">
       </button>
     `).join('');
     const more = group.images.length > 5 ? `<div class="thumb-more">+${group.images.length - 5}</div>` : '';
@@ -1933,7 +1933,7 @@ function renderGallery() {
 
 async function loadImageDataManifest() {
   try {
-    const response = await fetch('./images/image-data/manifest.json', { cache: 'no-store' });
+    const response = await fetch('./images/image-data/manifest.json');
     if (!response.ok) throw new Error(`manifest ${response.status}`);
     const data = await response.json();
     galleryImages = normalizeGalleryData(data);
