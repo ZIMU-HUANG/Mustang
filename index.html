@@ -20,13 +20,96 @@
     --hover: #f0f0f0;
   }
 
+  html { scroll-behavior: smooth; }
+
   body {
     font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-    margin: 0; padding: 32px 20px; background: var(--bg); color: var(--text);
+    margin: 0; padding: 0 20px 32px; background: var(--bg); color: var(--text);
     line-height: 1.5;
     font-size: 14px;
   }
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    margin: 0 -20px 30px;
+    background: rgba(250,250,250,0.92);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+  }
+  .topbar-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .brand {
+    color: var(--text);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 750;
+    letter-spacing: 0.16em;
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 7px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav a:hover {
+    background: var(--hover);
+    color: var(--text);
+  }
   .container { max-width: 1200px; margin: 0 auto; }
+
+  .section {
+    scroll-margin-top: 82px;
+    margin-bottom: 42px;
+  }
+  .section-head {
+    max-width: 760px;
+    margin-bottom: 18px;
+  }
+  #image-data .section-head {
+    max-width: none;
+  }
+  .kicker {
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 11px;
+    font-weight: 700;
+    margin: 0 0 8px;
+  }
+  .section-copy {
+    color: var(--text-muted);
+    margin: 0;
+    font-size: 13px;
+  }
+  .section-copy,
+  .intro-panel p,
+  .map-note,
+  .source-card p,
+  .source-note p,
+  .settlement-group span,
+  .gallery-status span {
+    text-align: justify;
+    text-align-last: left;
+    hyphens: auto;
+  }
 
   h1 {
     font-size: 22px; font-weight: 600;
@@ -35,6 +118,90 @@
   }
   .subtitle { color: var(--text-muted); margin-bottom: 28px; font-size: 13px; }
 
+  .background-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+    gap: 18px;
+    align-items: stretch;
+  }
+  .intro-panel, .map-panel, .data-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+  }
+  .intro-panel p {
+    margin: 0 0 12px;
+    color: var(--text-muted);
+  }
+  .intro-panel p:last-child { margin-bottom: 0; }
+  .fact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .fact {
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+  .fact strong {
+    display: block;
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.32;
+  }
+  .fact span {
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .map-panel {
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .map-frame {
+    position: relative;
+    flex: 1;
+    min-height: 260px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background:
+      linear-gradient(135deg, rgba(0,0,0,0.04), rgba(0,0,0,0.01)),
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(0,0,0,0.045) 28px),
+      repeating-linear-gradient(90deg, transparent, transparent 27px, rgba(0,0,0,0.045) 28px);
+  }
+  .map-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .map-placeholder {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+  }
+  .map-placeholder strong {
+    display: block;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .map-note {
+    color: var(--text-muted);
+    font-size: 12px;
+    margin: 0;
+  }
   .stats {
     display: flex; gap: 32px; flex-wrap: wrap;
     padding: 20px 24px;
@@ -60,6 +227,270 @@
     padding: 16px 20px;
     margin-bottom: 16px;
   }
+
+  .data-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .source-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+  }
+  .source-card h3 {
+    margin: 0 0 6px;
+    font-size: 15px;
+  }
+  .source-card p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 12.5px;
+  }
+  #image-data .section-copy,
+  #image-data .source-card p {
+    text-align-last: left;
+  }
+  .data-panel {
+    padding: 16px 20px;
+  }
+  .data-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .data-toolbar button {
+    padding: 6px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+  }
+  .data-toolbar button.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .data-empty {
+    min-height: 180px;
+    border: 1px dashed var(--border-strong);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+  }
+  .data-empty strong {
+    display: block;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .gallery-tools {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 0 0 14px;
+  }
+  .gallery-search {
+    min-width: 220px;
+    flex: 1;
+    padding: 7px 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    font-size: 13px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+  }
+  .gallery-search:focus { outline: none; border-color: var(--accent); }
+  .gallery-status {
+    border: 1px dashed var(--border-strong);
+    border-radius: 6px;
+    padding: 18px;
+    color: var(--text-muted);
+    background: #fbfbfb;
+    margin-top: 10px;
+  }
+  .gallery-status strong {
+    display: block;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .gallery-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  }
+  .gallery-card:hover {
+    border-color: var(--border-strong);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.07);
+    transform: translateY(-1px);
+  }
+  .gallery-card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .gallery-card-head {
+    padding: 12px 12px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .gallery-card-title {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .gallery-card-title h3 {
+    margin: 0;
+    font-size: 14px;
+  }
+  .source-pill {
+    flex: 0 0 auto;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    padding: 2px 7px;
+    color: var(--text-muted);
+    font-size: 10.5px;
+    font-weight: 650;
+    white-space: nowrap;
+  }
+  .gallery-meta {
+    color: var(--text-muted);
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .thumb-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+  }
+  .gallery-thumb {
+    appearance: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    height: 94px;
+    background: #eee;
+    cursor: zoom-in;
+    overflow: hidden;
+  }
+  .gallery-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.2s ease;
+  }
+  .gallery-thumb:hover img { transform: scale(1.04); }
+  .thumb-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 94px;
+    color: var(--text-muted);
+    background: #f2f2f2;
+    font-size: 12px;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+  }
+  .source-panels {
+    margin-top: 14px;
+  }
+  .source-panel {
+    display: none;
+  }
+  .source-panel.active {
+    display: block;
+  }
+  .source-layout {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.32fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+  .source-note {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    background: #fbfbfb;
+  }
+  .source-note h3 {
+    margin: 0 0 6px;
+    font-size: 15px;
+  }
+  .source-note p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 12.5px;
+  }
+  .settlement-groups {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .settlement-group {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    background: var(--surface);
+  }
+  .settlement-group strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .settlement-group span {
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .all-sources-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .source-column {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    padding: 14px;
+  }
+  .source-column h3 {
+    margin: 0 0 10px;
+    font-size: 15px;
+  }
+  .source-column ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    color: var(--text-muted);
+    font-size: 12.5px;
+  }
+  .source-column li {
+    padding: 6px 0;
+    border-top: 1px solid var(--border);
+  }
+  .source-column li:first-child { border-top: none; }
   .control-row { margin-bottom: 14px; }
   .control-row:last-child { margin-bottom: 0; }
   .control-row .label {
@@ -284,6 +715,78 @@
     font-size: 12px;
     color: rgba(255,255,255,0.6);
   }
+  #fieldbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: rgba(0,0,0,0.88);
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    cursor: zoom-out;
+  }
+  #fieldbox.open { display: flex; }
+  .fieldbox-inner {
+    position: relative;
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: default;
+  }
+  .fieldbox-inner img {
+    max-width: 100%;
+    max-height: calc(100vh - 130px);
+    object-fit: contain;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  .fieldbox-close {
+    position: absolute;
+    top: -36px;
+    right: 0;
+    color: #fff;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 4px 10px;
+    line-height: 1;
+  }
+  .fieldbox-caption {
+    margin-top: 12px;
+    color: #fff;
+    text-align: center;
+    font-size: 13px;
+  }
+  .fieldbox-caption strong {
+    font-size: 15px;
+    margin-right: 8px;
+  }
+  .fieldbox-caption span { color: rgba(255,255,255,0.68); }
+  .fieldbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    cursor: pointer;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+  .fieldbox-nav:hover { background: rgba(255,255,255,0.25); }
+  .fieldbox-prev { left: -60px; }
+  .fieldbox-next { right: -60px; }
   @media (max-width: 768px) {
     #lightbox { padding: 20px; }
     #lightbox .lb-prev { left: 4px; }
@@ -291,6 +794,8 @@
     #lightbox .lb-close { top: -32px; }
     th.img-col, td.img-col { width: 60px; }
     .img-btn { padding: 3px 8px; font-size: 11px; }
+    .fieldbox-prev { left: 4px; }
+    .fieldbox-next { right: 4px; }
   }
   td.coord a {
     color: var(--text-muted);
@@ -339,19 +844,92 @@
   }
 
   @media (max-width: 768px) {
-    body { padding: 16px 12px; }
+    body { padding: 0 12px 16px; }
+    .topbar { margin: 0 -12px 20px; }
+    .topbar-inner {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 10px;
+      padding: 12px;
+    }
+    .nav { justify-content: flex-start; }
+    .background-grid, .data-summary, .source-layout, .settlement-groups, .all-sources-grid, .gallery-grid { grid-template-columns: 1fr; }
+    .fact-grid { grid-template-columns: 1fr; }
     .stats { gap: 20px; padding: 16px; }
     .stat .value { font-size: 18px; }
     table { font-size: 12px; }
     thead th, tbody td { padding: 8px 8px; }
+    #fieldbox { padding: 20px; }
+    .fieldbox-close { top: -32px; }
   }
 </style>
 </head>
 <body>
-<div class="container">
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="https://zimu-huang.github.io/Mustang/">MUSTANG</a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="#background">Background</a>
+      <a href="#settlements">Settlements</a>
+      <a href="#image-data">Image Data</a>
+    </nav>
+  </div>
+</header>
 
-<h1>Mustang Settlements</h1>
-<p class="subtitle">Mustang District · Gandaki Province · Nepal</p>
+<main class="container">
+
+<section class="section" id="background">
+  <div class="section-head">
+    <p class="kicker">Study Area</p>
+    <h1>Mustang Settlements</h1>
+    <p class="subtitle">Mustang District · Gandaki Province · Nepal</p>
+    <p class="section-copy">An interactive settlement catalogue and multi-source visual record for documenting Mustang's high-altitude built environment.</p>
+  </div>
+
+  <div class="background-grid">
+    <div class="intro-panel">
+      <p>Mustang is a high-altitude Himalayan district in Gandaki Province, Nepal. Historically associated with the former Kingdom of Lo, it forms a Tibetan-Buddhist cultural landscape along the trans-Himalayan trade corridor.</p>
+      <p>Long restricted access, extreme terrain, sparse roads, and uneven street-view coverage have left many settlements under-recorded beyond a small number of well-known heritage sites.</p>
+      <p>This website organizes 85 surveyed settlements and links regional context, settlement locations, satellite/locator images, and ground-sensing image sources for scalable built-environment documentation.</p>
+      <div class="fact-grid">
+        <div class="fact">
+          <strong>85</strong>
+          <span>Settlements</span>
+        </div>
+        <div class="fact">
+          <strong>3,573 km²</strong>
+          <span>District Area</span>
+        </div>
+        <div class="fact">
+          <strong>83.47°E-84.30°E</strong>
+          <span>Longitude Range</span>
+        </div>
+        <div class="fact">
+          <strong>28.55°N-29.32°N</strong>
+          <span>Latitude Range</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="map-panel">
+      <div class="map-frame">
+        <img src="./images/overview-map.webp" alt="Overview map of Mustang settlements" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="map-placeholder">
+          <strong>Overview Map</strong>
+          <span>Upload the final general map as<br>images/overview-map.webp</span>
+        </div>
+      </div>
+      <p class="map-note">Overview of 85 surveyed settlements, with Upper and Lower Mustang divided at Kagbeni.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="settlements">
+  <div class="section-head">
+    <p class="kicker">Settlement Catalogue</p>
+    <h1>Settlements</h1>
+    <p class="section-copy">Search, filter, and inspect the 85 settlement records. Satellite and locator images open in the same viewer.</p>
+  </div>
 
 <div class="stats">
   <div class="stat">
@@ -1089,12 +1667,54 @@
 </table>
 <div class="empty" id="empty" style="display:none">No matching entries</div>
 </div>
+</section>
+
+<section class="section" id="image-data">
+  <div class="section-head">
+    <p class="kicker">Field and Street-Level Images</p>
+    <h1>Image Data</h1>
+    <p class="section-copy">The ground-sensing dataset combines active field photography, vehicle-mounted video frames, and public street-view imagery to document settlement-level variation in building style, quality and performance.</p>
+  </div>
+
+  <div class="data-summary">
+    <div class="source-card">
+      <h3>iPhone Field Photos</h3>
+      <p>Researcher-collected on-foot facade photography. After filtering, the dataset contains 3,975 photos across 41 settlements.</p>
+    </div>
+    <div class="source-card">
+      <h3>GoPro Survey Images</h3>
+      <p>Vehicle-mounted forward-facing survey imagery along road-accessible corridors, with 221 filtered frames across 17 settlements.</p>
+    </div>
+    <div class="source-card">
+      <h3>Google Street View</h3>
+      <p>Supplementary public panoramic imagery sampled along available Street View coverage, with 2,299 filtered images across 25 settlements.</p>
+    </div>
+  </div>
+
+  <div class="data-panel">
+    <div class="gallery-tools">
+      <div class="data-toolbar" aria-label="Image source filters">
+        <button class="data-source active" data-source="all" type="button">All Sources</button>
+        <button class="data-source" data-source="iphone" type="button">iPhone</button>
+        <button class="data-source" data-source="gopro" type="button">GoPro</button>
+        <button class="data-source" data-source="gsv" type="button">Google Street View</button>
+      </div>
+      <input class="gallery-search" id="gallerySearch" type="search" placeholder="Search settlement folders..." autocomplete="off">
+    </div>
+
+    <div class="gallery-status" id="galleryStatus">
+      <strong>Image gallery is ready for upload.</strong>
+      <span>Upload images/image-data/manifest.json and the source folders to show settlement image cards here.</span>
+    </div>
+    <div class="gallery-grid" id="galleryGrid" aria-live="polite"></div>
+  </div>
+</section>
 
 <footer>
-  85 settlements · 5 rural municipalities · click View for satellite or locator image · click coordinates for Google Maps
+  Mustang Settlements · 85 settlements · 5 rural municipalities · satellite, locator, and field-image catalogue
 </footer>
 
-</div>
+</main>
 
 <!-- Lightbox -->
 <div id="lightbox" role="dialog" aria-modal="true" aria-hidden="true">
@@ -1110,6 +1730,19 @@
     <div class="lb-caption">
       <span class="lb-name" id="lbName"></span>
       <span class="lb-meta" id="lbMeta"></span>
+    </div>
+  </div>
+</div>
+
+<div id="fieldbox" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="fieldbox-inner">
+    <button class="fieldbox-close" id="fieldboxClose" aria-label="Close">✕</button>
+    <button class="fieldbox-nav fieldbox-prev" id="fieldboxPrev" aria-label="Previous image">‹</button>
+    <button class="fieldbox-nav fieldbox-next" id="fieldboxNext" aria-label="Next image">›</button>
+    <img id="fieldboxImg" alt="">
+    <div class="fieldbox-caption">
+      <strong id="fieldboxTitle"></strong>
+      <span id="fieldboxMeta"></span>
     </div>
   </div>
 </div>
@@ -1178,6 +1811,176 @@ document.querySelectorAll('th.sortable').forEach(th => {
   });
 });
 
+/* ---------- Image Data Gallery ---------- */
+const galleryGrid = document.getElementById('galleryGrid');
+const galleryStatus = document.getElementById('galleryStatus');
+const gallerySearch = document.getElementById('gallerySearch');
+const sourceLabels = {
+  iphone: 'iPhone',
+  gopro: 'GoPro',
+  gsv: 'Google Street View'
+};
+const sourceOrder = ['iphone', 'gopro', 'gsv'];
+let gallerySource = 'all';
+let galleryImages = [];
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[char]));
+}
+
+function sourceRank(source) {
+  const index = sourceOrder.indexOf(source);
+  return index === -1 ? 99 : index;
+}
+
+function settlementRank(folder) {
+  const match = String(folder || '').match(/^(\d+)/);
+  return match ? Number(match[1]) : 999;
+}
+
+function normalizeGalleryData(data) {
+  const images = Array.isArray(data?.images) ? data.images : [];
+  return images
+    .filter(item => item && item.src && item.source && item.settlement_folder)
+    .map((item, index) => ({
+      ...item,
+      index,
+      source: String(item.source).toLowerCase(),
+      settlement_name: item.settlement_name || String(item.settlement_folder).replace(/^\d+_?/, '').replaceAll('_', ' '),
+      filename: item.filename || String(item.src).split('/').pop()
+    }));
+}
+
+function showGalleryStatus(title, detail) {
+  galleryStatus.style.display = 'block';
+  galleryStatus.innerHTML = `<strong>${escapeHtml(title)}</strong><span>${escapeHtml(detail)}</span>`;
+}
+
+function hideGalleryStatus() {
+  galleryStatus.style.display = 'none';
+}
+
+function groupedGalleryImages() {
+  const query = gallerySearch.value.trim().toLowerCase();
+  const filtered = galleryImages.filter(item => {
+    const sourceMatches = gallerySource === 'all' || item.source === gallerySource;
+    const queryText = `${item.settlement_name} ${item.settlement_folder} ${sourceLabels[item.source] || item.source}`.toLowerCase();
+    return sourceMatches && (!query || queryText.includes(query));
+  });
+
+  const groups = new Map();
+  filtered.forEach(item => {
+    const key = `${item.source}::${item.settlement_folder}`;
+    if (!groups.has(key)) {
+      groups.set(key, {
+        source: item.source,
+        settlement_folder: item.settlement_folder,
+        settlement_name: item.settlement_name,
+        images: []
+      });
+    }
+    groups.get(key).images.push(item);
+  });
+
+  return Array.from(groups.values()).sort((a, b) => {
+    const bySource = sourceRank(a.source) - sourceRank(b.source);
+    if (bySource) return bySource;
+    const byNumber = settlementRank(a.settlement_folder) - settlementRank(b.settlement_folder);
+    if (byNumber) return byNumber;
+    return a.settlement_name.localeCompare(b.settlement_name);
+  });
+}
+
+function renderGallery() {
+  if (!galleryImages.length) return;
+  const groups = groupedGalleryImages();
+  galleryGrid.innerHTML = '';
+
+  if (!groups.length) {
+    showGalleryStatus('No matching image folders.', 'Try another source filter or settlement search.');
+    return;
+  }
+
+  hideGalleryStatus();
+  const html = groups.map(group => {
+    const previews = group.images.slice(0, 5).map(item => `
+      <button class="gallery-thumb" type="button" data-gallery-index="${item.index}" aria-label="Open ${escapeHtml(item.filename)}">
+        <img src="${escapeHtml(item.src)}" loading="lazy" alt="${escapeHtml(group.settlement_name)} ${escapeHtml(sourceLabels[item.source] || item.source)}">
+      </button>
+    `).join('');
+    const more = group.images.length > 5 ? `<div class="thumb-more">+${group.images.length - 5}</div>` : '';
+    return `
+      <article class="gallery-card" data-gallery-index="${group.images[0].index}" tabindex="0" role="button" aria-label="Open ${escapeHtml(group.settlement_name)} ${escapeHtml(sourceLabels[group.source] || group.source)} image folder">
+        <div class="gallery-card-head">
+          <div class="gallery-card-title">
+            <h3>${escapeHtml(group.settlement_name)}</h3>
+            <span class="source-pill">${escapeHtml(sourceLabels[group.source] || group.source)}</span>
+          </div>
+          <div class="gallery-meta">${escapeHtml(group.settlement_folder)} · ${group.images.length.toLocaleString()} images</div>
+        </div>
+        <div class="thumb-strip">${previews}${more}</div>
+      </article>
+    `;
+  }).join('');
+  galleryGrid.innerHTML = html;
+}
+
+async function loadImageDataManifest() {
+  try {
+    const response = await fetch('./images/image-data/manifest.json', { cache: 'no-store' });
+    if (!response.ok) throw new Error(`manifest ${response.status}`);
+    const data = await response.json();
+    galleryImages = normalizeGalleryData(data);
+    if (!galleryImages.length) {
+      showGalleryStatus('No images found in manifest.', 'Regenerate manifest.json after confirming the image-data folders contain WebP files.');
+      return;
+    }
+    renderGallery();
+  } catch (error) {
+    showGalleryStatus(
+      'Image gallery is ready for upload.',
+      'Upload images/image-data/manifest.json and the source folders to show settlement image cards here.'
+    );
+  }
+}
+
+document.querySelectorAll('.data-source').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.data-source').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    gallerySource = btn.dataset.source;
+    renderGallery();
+  });
+});
+
+gallerySearch.addEventListener('input', renderGallery);
+
+galleryGrid.addEventListener('click', event => {
+  const button = event.target.closest('.gallery-thumb');
+  const card = event.target.closest('.gallery-card');
+  const index = button ? button.dataset.galleryIndex : card?.dataset.galleryIndex;
+  if (index === undefined) return;
+  const item = galleryImages[Number(index)];
+  if (item) openFieldbox(item);
+});
+
+galleryGrid.addEventListener('keydown', event => {
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  const card = event.target.closest('.gallery-card');
+  if (!card) return;
+  event.preventDefault();
+  const item = galleryImages[Number(card.dataset.galleryIndex)];
+  if (item) openFieldbox(item);
+});
+
+loadImageDataManifest();
+
 /* ---------- Lightbox ---------- */
 const lightbox = document.getElementById('lightbox');
 const lbImg    = document.getElementById('lbImg');
@@ -1189,9 +1992,18 @@ const lbPrev   = document.getElementById('lbPrev');
 const lbNext   = document.getElementById('lbNext');
 const lbTabSat = document.getElementById('lbTabSat');
 const lbTabLoc = document.getElementById('lbTabLoc');
+const fieldbox = document.getElementById('fieldbox');
+const fieldboxImg = document.getElementById('fieldboxImg');
+const fieldboxTitle = document.getElementById('fieldboxTitle');
+const fieldboxMeta = document.getElementById('fieldboxMeta');
+const fieldboxClose = document.getElementById('fieldboxClose');
+const fieldboxPrev = document.getElementById('fieldboxPrev');
+const fieldboxNext = document.getElementById('fieldboxNext');
 
 let currentRow  = null;     // <tr> currently shown
 let currentKind = 'Satellite'; // 'Satellite' or 'Locator'
+let activeFieldImages = [];
+let activeFieldIndex = 0;
 
 function visibleRows() {
   return rows.filter(tr => !tr.classList.contains('hidden'));
@@ -1282,8 +2094,66 @@ lbClose.addEventListener('click', closeLightbox);
 lbPrev.addEventListener('click', e => { e.stopPropagation(); navigateRow(-1); });
 lbNext.addEventListener('click', e => { e.stopPropagation(); navigateRow(1); });
 
+function imagesForFieldItem(item) {
+  return galleryImages
+    .filter(candidate => (
+      candidate.source === item.source &&
+      candidate.settlement_folder === item.settlement_folder
+    ))
+    .sort((a, b) => a.filename.localeCompare(b.filename, undefined, { numeric: true }));
+}
+
+function showFieldImage(index) {
+  if (!activeFieldImages.length) return;
+  activeFieldIndex = (index + activeFieldImages.length) % activeFieldImages.length;
+  const item = activeFieldImages[activeFieldIndex];
+  const sourceLabel = sourceLabels[item.source] || item.source;
+
+  fieldboxImg.src = item.src;
+  fieldboxImg.alt = `${item.settlement_name} ${sourceLabel}`;
+  fieldboxTitle.textContent = item.settlement_name;
+  fieldboxMeta.textContent = `${sourceLabel} · ${activeFieldIndex + 1}/${activeFieldImages.length} · ${item.filename}`;
+
+  const hasMultiple = activeFieldImages.length > 1;
+  fieldboxPrev.style.display = hasMultiple ? '' : 'none';
+  fieldboxNext.style.display = hasMultiple ? '' : 'none';
+}
+
+function openFieldbox(item) {
+  activeFieldImages = imagesForFieldItem(item);
+  activeFieldIndex = Math.max(0, activeFieldImages.findIndex(candidate => candidate.index === item.index));
+  showFieldImage(activeFieldIndex);
+  fieldbox.classList.add('open');
+  fieldbox.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function navigateFieldbox(direction) {
+  showFieldImage(activeFieldIndex + direction);
+}
+
+function closeFieldbox() {
+  fieldbox.classList.remove('open');
+  fieldbox.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  fieldboxImg.src = '';
+  activeFieldImages = [];
+  activeFieldIndex = 0;
+}
+
+fieldbox.addEventListener('click', e => { if (e.target === fieldbox) closeFieldbox(); });
+fieldboxClose.addEventListener('click', closeFieldbox);
+fieldboxPrev.addEventListener('click', e => { e.stopPropagation(); navigateFieldbox(-1); });
+fieldboxNext.addEventListener('click', e => { e.stopPropagation(); navigateFieldbox(1); });
+
 // Keyboard
 document.addEventListener('keydown', e => {
+  if (fieldbox.classList.contains('open')) {
+    if (e.key === 'Escape') closeFieldbox();
+    else if (e.key === 'ArrowLeft') navigateFieldbox(-1);
+    else if (e.key === 'ArrowRight') navigateFieldbox(1);
+    return;
+  }
   if (!lightbox.classList.contains('open')) return;
   if (e.key === 'Escape') closeLightbox();
   else if (e.key === 'ArrowLeft')  navigateRow(-1);
